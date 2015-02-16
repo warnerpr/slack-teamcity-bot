@@ -7,3 +7,5 @@ mccabe==0.3
 pep8==1.6.2
 pyflakes==0.8.1
 
+# include production requirements from setup.py in the project
+-e ./tcslackbot/
