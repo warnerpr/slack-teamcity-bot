@@ -1,0 +1,9 @@
+# to install development tools, simply:
+# virtualenv VENV
+# source ./VENV/bin/activate
+# pip install -r requirements.txt
+flake8==2.3.0
+mccabe==0.3
+pep8==1.6.2
+pyflakes==0.8.1
+
