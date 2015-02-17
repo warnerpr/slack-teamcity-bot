@@ -4,15 +4,18 @@ from __future__ import print_function
 import urllib
 import json
 
-from twisted.internet import defer, ssl
+from twisted.internet import defer, ssl, reactor
 from twisted.web import client
 from autobahn.twisted.websocket import (
     WebSocketClientProtocol, WebSocketClientFactory, connectWS)
 
 
+CONNECT_DELAY = 5  # TODO make this a backoff timer
+
+
 class WebSocket(WebSocketClientProtocol):
 
-    def __init__(self, on_msg, on_lost):
+    def __init__(self, on_msg, on_lost, on_connnect):
         """ required to pass in some callbacks
             on_msg is called when a message comes in
             on_lost is called when the connection is lost """
@@ -21,6 +24,7 @@ class WebSocket(WebSocketClientProtocol):
 
     def onConnect(self, response):
         print("Server connected: {0}".format(response.peer))
+        self.on_connect(response)
 
     def onOpen(self):
         print("WebSocket connection open.")
@@ -35,13 +39,14 @@ class WebSocket(WebSocketClientProtocol):
 
 class ClientFactory(WebSocketClientFactory):
 
-    def __init__(self, url, on_msg, on_lost):
+    def __init__(self, url, on_msg, on_lost, on_connect):
         WebSocketClientFactory.__init__(self, url)
         self.on_msg = on_msg
         self.on_lost = on_lost
+        self.on_connect = on_connect
 
     def buildProtocol(self, addr):
-        p = self.protocol(self.on_msg, self.on_lost)
+        p = self.protocol(self.on_msg, self.on_lost, self.on_connect)
         p.factory = self
         return p
 
@@ -50,26 +55,31 @@ class SlackWebSocketManager(object):
     """ get the URL for connection and try to keep us connected as much as
         possible """
 
-    def __init__(self, token):
+    def __init__(self, token, on_msg):
         self.token = token
+        self.on_msg = on_msg
         self.factory = None
 
     @defer.inlineCallbacks
     def connect(self):
         ws_url = yield self._get_url()
         self.factory = \
-            ClientFactory(ws_url, lambda _m: print(_m), self.on_lost)
+            ClientFactory(ws_url, self.on_msg, self.on_lost, self.on_connect)
         self.factory.protocol = WebSocket
         if self.factory.isSecure:
             contextFactory = ssl.ClientContextFactory()
         else:
             contextFactory = None
-        yield connectWS(self.factory, contextFactory)
+        result = yield connectWS(self.factory, contextFactory)
+        print(result)
 
-    @defer.inlineCallbacks
     def on_lost(self, reason):
         print("Lost connection {!r}".format(reason))
-        self.connect()
+        reactor.callLater(CONNECT_DELAY,  self.connect)
+
+    def on_connect(self, response):
+        import pdb; pdb.set_trace()
+        print(response)
 
     @defer.inlineCallbacks
     def _get_url(self):
