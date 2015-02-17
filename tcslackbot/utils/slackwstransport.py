@@ -1,11 +1,10 @@
 """ confirm we can talk web sockets to slack """
 
 from __future__ import print_function
-import slacktoken
 import urllib
 import json
-from twisted.internet import reactor, ssl, defer
 
+from twisted.internet import defer, ssl
 from twisted.web import client
 from autobahn.twisted.websocket import (
     WebSocketClientProtocol, WebSocketClientFactory, connectWS)
@@ -27,10 +26,7 @@ class WebSocket(WebSocketClientProtocol):
         print("WebSocket connection open.")
 
     def onMessage(self, payload, isBinary):
-        if isBinary:
-            print("Binary message received: {0} bytes".format(len(payload)))
-        else:
-            print("Text message received: {0}".format(payload.decode('utf8')))
+        self.on_msg(payload)
 
     def connectionLost(self, reason):
         WebSocketClientProtocol.connectionLost(self, reason)
@@ -84,14 +80,3 @@ class SlackWebSocketManager(object):
         resp = yield client.getPage('{}?{}'.format(url, params))
         defer.returnValue(json.loads(resp)['url'])
         return
-
-
-def main():
-    token = slacktoken.get_token()
-    wsman = SlackWebSocketManager(token)
-    reactor.callWhenRunning(wsman.connect)
-    reactor.run()
-
-
-if __name__ == '__main__':
-    main()
