@@ -15,16 +15,17 @@ CONNECT_DELAY = 5  # TODO make this a backoff timer
 
 class WebSocket(WebSocketClientProtocol):
 
-    def __init__(self, on_msg, on_lost, on_connnect):
+    def __init__(self, on_msg, on_lost, on_connect):
         """ required to pass in some callbacks
             on_msg is called when a message comes in
             on_lost is called when the connection is lost """
         self.on_msg = on_msg
         self.on_lost = on_lost
+        self.on_connect = on_connect
 
     def onConnect(self, response):
         print("Server connected: {0}".format(response.peer))
-        self.on_connect(response)
+        self.on_connect(self)
 
     def onOpen(self):
         print("WebSocket connection open.")
@@ -59,6 +60,7 @@ class SlackWebSocketManager(object):
         self.token = token
         self.on_msg = on_msg
         self.factory = None
+        self.ws = None
 
     @defer.inlineCallbacks
     def connect(self):
@@ -77,9 +79,8 @@ class SlackWebSocketManager(object):
         print("Lost connection {!r}".format(reason))
         reactor.callLater(CONNECT_DELAY,  self.connect)
 
-    def on_connect(self, response):
-        import pdb; pdb.set_trace()
-        print(response)
+    def on_connect(self, ws):
+       self.ws = ws
 
     @defer.inlineCallbacks
     def _get_url(self):
