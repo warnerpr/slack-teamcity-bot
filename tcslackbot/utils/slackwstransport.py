@@ -2,10 +2,8 @@
 
 from __future__ import print_function
 import slacktoken
-import requests
 import urllib
 import json
-from urlparse import urlparse
 from twisted.internet import reactor, ssl, defer
 
 from twisted.web import client
@@ -19,7 +17,7 @@ class WebSocket(WebSocketClientProtocol):
         """ required to pass in some callbacks
             on_msg is called when a message comes in
             on_lost is called when the connection is lost """
-        self.on_msg  = on_msg
+        self.on_msg = on_msg
         self.on_lost = on_lost
 
     def onConnect(self, response):
@@ -42,15 +40,14 @@ class WebSocket(WebSocketClientProtocol):
 class ClientFactory(WebSocketClientFactory):
 
     def __init__(self, url, on_msg, on_lost):
-       WebSocketClientFactory.__init__(self, url)
-       self.on_msg = on_msg
-       self.on_lost = on_lost
+        WebSocketClientFactory.__init__(self, url)
+        self.on_msg = on_msg
+        self.on_lost = on_lost
 
     def buildProtocol(self, addr):
         p = self.protocol(self.on_msg, self.on_lost)
         p.factory = self
         return p
-
 
 
 class SlackWebSocketManager(object):
@@ -60,11 +57,12 @@ class SlackWebSocketManager(object):
     def __init__(self, token):
         self.token = token
         self.factory = None
-         
+
     @defer.inlineCallbacks
     def connect(self):
         ws_url = yield self._get_url()
-        self.factory = ClientFactory(ws_url, lambda _msg: print(_msg), self.on_lost)
+        self.factory = \
+            ClientFactory(ws_url, lambda _m: print(_m), self.on_lost)
         self.factory.protocol = WebSocket
         if self.factory.isSecure:
             contextFactory = ssl.ClientContextFactory()
@@ -97,4 +95,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
