@@ -37,6 +37,7 @@ setup(
         'requests==2.5.1',
         'service-identity==14.0.0',
         'six==1.9.0',
+        'treq==15.0.0',
         'wsgiref==0.1.2',
         'zope.interface==4.1.2',
     ],

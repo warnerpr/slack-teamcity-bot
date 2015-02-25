@@ -1,9 +1,12 @@
+BIN := "VENV/bin"
+
 env:
 	@virtualenv VENV
-	@VENV/bin/pip install -r requirements.txt
+	@$(BIN)/pip install -r requirements.txt
 
 test:
-	@find tcslackbot -name "*.py" | xargs VENV/bin/flake8
+	@find tcslackbot -name "*.py" | xargs $(BIN)/flake8
+	@$(BIN)/nosetests tcslackbot
 
 clean:
 	@rm -rf build

@@ -80,7 +80,7 @@ class SlackWebSocketManager(object):
         reactor.callLater(CONNECT_DELAY,  self.connect)
 
     def on_connect(self, ws):
-       self.ws = ws
+            self.ws = ws
 
     @defer.inlineCallbacks
     def _get_url(self):
