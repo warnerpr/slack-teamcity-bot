@@ -20,8 +20,8 @@ class TestCase(unittest.TestCase):
         urls = [url for url in bot.look_for_urls(msg)]
         self.assertEqual(
             urls,
-            ['http://localhost:8111//httpAuth/app/rest/builds/id:4',
-             'http://localhost:8111//httpAuth/app/rest/builds/id:99'])
+            ['http://localhost:8111/httpAuth/app/rest/builds/id:4',
+             'http://localhost:8111/httpAuth/app/rest/builds/id:99'])
 
 
 if __name__ == '__main__':
