@@ -3,6 +3,13 @@ slack-teamcity-bot
 
 A slack bot that watches for [TeamCity](https://www.jetbrians.com/teamcity/) links, and dumps some info into [Slack](https://slack.com/) when it sees them.  The output is intended to match that of https://github.com/PeteGoo/tcSlackBuildNotifier   The key difference is that this bot watches for TeamCity links to fly by and then follows them, rather than pushing notifications from TeamCity, which is also useful, but covered by the linked project.
 
+Limitations:
+------------
+ - error handling on the API side is non existant so far, although websocket stuff is designed to reconnect, it is not tested well
+ - lots of missing test coverage on the API interaction side
+ - TeamCity urls are hard coded in bot.py
+ - only build status is reported into Slack today, and it is unformatted
+
 Set up development env with:
 
 ``` bash
