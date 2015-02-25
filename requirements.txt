@@ -8,6 +8,7 @@ pep8==1.6.2
 pyflakes==0.8.1
 ipython
 ipdb
+nose
 
 # include production requirements from setup.py in the project
 -e ./
