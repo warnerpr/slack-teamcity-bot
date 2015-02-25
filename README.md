@@ -11,6 +11,7 @@ Limitations:
  - only build status is reported into Slack today, and it is unformatted
 
 Set up development env with:
+----------------------------
 
 ``` bash
 virtualenv VENV
